@@ -60,7 +60,10 @@ class _LoginScreenState extends State<LoginScreen> {
           );
         } else if (user.role == UserRole.teacher) {
            Navigator.of(context).pushReplacement(
-             MaterialPageRoute(builder: (context) => const TeacherDashboardScreen()),
+             MaterialPageRoute(builder: (context) => TeacherDashboardScreen(
+               teacherId: user.id,
+               teacherName: user.name,
+             )),
            );
         } else if (user.role == UserRole.parent) {
            Navigator.of(context).pushReplacement(

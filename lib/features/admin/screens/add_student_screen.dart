@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:admin_app/utils/constants.dart';
 import 'package:admin_app/models/student.dart';
+import 'package:admin_app/models/school_class.dart';
 import 'package:admin_app/core/services/student_service.dart';
+import 'package:admin_app/core/services/school_class_service.dart';
 
 class AddStudentScreen extends StatefulWidget {
   const AddStudentScreen({super.key});
@@ -21,24 +23,66 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
   final _mobileController = TextEditingController();
   final _admissionNoController = TextEditingController();
   
-  // Dropdown Values
-  String _selectedClass = '10';
-  String _selectedSection = 'A';
+  // Dynamic Data
+  List<SchoolClass> _allSchoolClasses = [];
+  List<String> _availableGrades = [];
+  List<String> _availableSections = [];
+
+  // Selected Values
+  String? _selectedGrade;
+  String? _selectedSection;
   String _selectedGender = 'Male';
   
   // Options
-  final List<String> _classes = ['8', '9', '10', '11', '12'];
-  final List<String> _sections = ['A', 'B', 'C'];
   final List<String> _genders = ['Male', 'Female', 'Other'];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadClasses();
+  }
+
+  void _loadClasses() {
+    _allSchoolClasses = ClassService().getAllClasses();
+    _availableGrades = _allSchoolClasses.map((e) => e.grade).toSet().toList();
+    _availableGrades.sort(); // Sort grades (e.g., 9, 10)
+    
+    if (_availableGrades.isNotEmpty) {
+      _selectedGrade = _availableGrades.first;
+      _updateSections();
+    }
+  }
+
+  void _updateSections() {
+    setState(() {
+      _availableSections = _allSchoolClasses
+          .where((c) => c.grade == _selectedGrade)
+          .map((c) => c.section)
+          .toSet()
+          .toList()
+        ..sort();
+      
+      if (_availableSections.isNotEmpty) {
+        _selectedSection = _availableSections.first;
+      } else {
+        _selectedSection = null;
+      }
+    });
+  }
 
   void _saveStudent() {
     if (_formKey.currentState!.validate()) {
+      if (_selectedGrade == null || _selectedSection == null) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select Class and Section')));
+        return;
+      }
+
       final newStudent = Student(
         id: DateTime.now().millisecondsSinceEpoch.toString(), // Simple ID generation
         name: _nameController.text,
         rollNo: _rollNoController.text,
-        className: _selectedClass,
-        section: _selectedSection,
+        className: _selectedGrade!,
+        section: _selectedSection!,
         fatherName: _fatherNameController.text,
         motherName: _motherNameController.text,
         aadhaar: 'PENDING', // Default for now
@@ -139,9 +183,14 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
                         const SizedBox(height: 16),
                         Row(
                           children: [
-                            Expanded(child: _buildDropdown('Class', _classes, _selectedClass, (val) => setState(() => _selectedClass = val!))),
+                            Expanded(child: _buildDropdown('Class', _availableGrades, _selectedGrade, (val) {
+                              setState(() {
+                                _selectedGrade = val;
+                                _updateSections();
+                              });
+                            })),
                             const SizedBox(width: 16),
-                            Expanded(child: _buildDropdown('Section', _sections, _selectedSection, (val) => setState(() => _selectedSection = val!))),
+                            Expanded(child: _buildDropdown('Section', _availableSections, _selectedSection, (val) => setState(() => _selectedSection = val))),
                           ],
                         ),
                         const SizedBox(height: 16),
@@ -247,7 +296,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
     );
   }
 
-  Widget _buildDropdown(String label, List<String> items, String value, Function(String?) onChanged) {
+  Widget _buildDropdown(String label, List<String> items, String? value, Function(String?) onChanged) {
     return DropdownButtonFormField<String>(
       value: value,
       items: items.map((String item) {

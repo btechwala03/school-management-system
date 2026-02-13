@@ -4,6 +4,8 @@ import 'package:admin_app/core/widgets/fade_in_list_item.dart';
 import 'package:admin_app/features/admin/screens/student_list_screen.dart';
 import 'package:admin_app/features/admin/screens/teacher_attendance_screen.dart';
 import 'package:admin_app/features/admin/screens/teacher_list_screen.dart';
+import 'package:admin_app/features/admin/screens/class_management_screen.dart';
+import 'package:admin_app/features/admin/screens/edit_timetable_screen.dart';
 import 'package:admin_app/features/admin/screens/audit_log_screen.dart';
 import 'package:admin_app/features/admin/screens/send_notices_screen.dart';
 import 'package:admin_app/features/admin/screens/reports_dashboard_screen.dart';
@@ -102,22 +104,58 @@ class DashboardScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('Student Demographics', style: AppTextStyles.heading2.copyWith(fontSize: 16)),
-                    const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        _buildGenderStat('Boys', '650', Icons.male, Colors.blue),
-                        Container(height: 40, width: 1, color: Colors.grey.shade300),
-                        _buildGenderStat('Girls', '600', Icons.female, Colors.pink),
-                      ],
-                    ),
+                    const SizedBox(height: 24),
+                
                   ],
                 ),
               ),
             ),
             const SizedBox(height: 24),
+
+            // 3. Academic Management
             FadeInListItem(
               index: 3,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Academic Management', style: AppTextStyles.heading2),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildActionCard(
+                          context,
+                          title: 'Manage Classes',
+                          icon: Icons.meeting_room,
+                          color: Colors.orange,
+                          onTap: () {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => const ClassManagementScreen()));
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: _buildActionCard(
+                          context,
+                          title: 'Manage Timetable',
+                          icon: Icons.calendar_today,
+                          color: Colors.teal,
+                          onTap: () {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => const EditTimetableScreen()));
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            FadeInListItem(
+              index: 4,
               child: Text('Quick Actions', style: AppTextStyles.heading2),
             ),
             const SizedBox(height: 16),
@@ -130,7 +168,7 @@ class DashboardScreen extends StatelessWidget {
               childAspectRatio: 1.5,
               children: [
                 FadeInListItem(
-                  index: 4,
+                  index: 5,
                   child: _buildActionCard(context, 'Manage Fees', Icons.payment, AppColors.primary, () {
                      Navigator.of(context).push(
                       MaterialPageRoute(builder: (context) => const StudentListScreen()),
@@ -138,7 +176,7 @@ class DashboardScreen extends StatelessWidget {
                   }),
                 ),
                 FadeInListItem(
-                  index: 5,
+                  index: 6,
                   child: _buildActionCard(context, 'Mark Attendance', Icons.edit_calendar, AppColors.secondary, () {
                     // Reverting to "Mark Attendance" as per user request
                     Navigator.of(context).push(
@@ -147,7 +185,7 @@ class DashboardScreen extends StatelessWidget {
                   }),
                 ),
                 FadeInListItem(
-                  index: 6,
+                  index: 7,
                   child: _buildActionCard(context, 'Send Notices', Icons.message, Colors.orange, () {
                     Navigator.of(context).push(
                       MaterialPageRoute(builder: (context) => const SendNoticesScreen()),
@@ -155,7 +193,7 @@ class DashboardScreen extends StatelessWidget {
                   }),
                 ),
                 FadeInListItem(
-                  index: 7,
+                  index: 8,
                   child: _buildActionCard(context, 'View Reports', Icons.bar_chart, Colors.purple, () {
                      Navigator.of(context).push(
                       MaterialPageRoute(builder: (context) => const ReportsDashboardScreen()),

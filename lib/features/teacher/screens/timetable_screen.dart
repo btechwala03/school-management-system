@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:admin_app/utils/constants.dart';
 import 'package:intl/intl.dart';
+import 'package:admin_app/core/services/school_class_service.dart';
 
 class TimetableScreen extends StatefulWidget {
-  const TimetableScreen({super.key});
+  final String teacherName;
+  const TimetableScreen({super.key, this.teacherName = 'Amit Verma'});
 
   @override
   State<TimetableScreen> createState() => _TimetableScreenState();
@@ -12,35 +14,11 @@ class TimetableScreen extends StatefulWidget {
 class _TimetableScreenState extends State<TimetableScreen> {
   String _selectedDay = 'Mon';
   final List<String> _days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
-  // Mock Data: Weekly Schedule
-  final Map<String, List<Map<String, dynamic>>> _weeklySchedule = {
-    'Mon': [
-      {'start': const TimeOfDay(hour: 9, minute: 0), 'end': const TimeOfDay(hour: 9, minute: 50), 'subject': 'Mathematics', 'class': '10-A', 'room': '201'},
-      {'start': const TimeOfDay(hour: 10, minute: 0), 'end': const TimeOfDay(hour: 10, minute: 50), 'subject': 'Physics', 'class': '12-B', 'room': 'Lab 1'},
-      {'start': const TimeOfDay(hour: 11, minute: 30), 'end': const TimeOfDay(hour: 12, minute: 20), 'subject': 'Mathematics', 'class': '10-B', 'room': '202'},
-    ],
-    'Tue': [
-      {'start': const TimeOfDay(hour: 9, minute: 0), 'end': const TimeOfDay(hour: 9, minute: 50), 'subject': 'Science', 'class': '8-A', 'room': '101'},
-      {'start': const TimeOfDay(hour: 11, minute: 30), 'end': const TimeOfDay(hour: 12, minute: 20), 'subject': 'Mathematics', 'class': '10-A', 'room': '201'},
-      {'start': const TimeOfDay(hour: 14, minute: 0), 'end': const TimeOfDay(hour: 14, minute: 50), 'subject': 'Remedial', 'class': '10-B', 'room': 'Library'},
-    ],
-    'Wed': [
-       {'start': const TimeOfDay(hour: 10, minute: 0), 'end': const TimeOfDay(hour: 10, minute: 50), 'subject': 'Physics', 'class': '12-B', 'room': 'Lab 1'},
-       {'start': const TimeOfDay(hour: 12, minute: 0), 'end': const TimeOfDay(hour: 12, minute: 50), 'subject': 'Free Period', 'class': '-', 'room': 'Staff Room'},
-    ],
-    'Thu': [
-      {'start': const TimeOfDay(hour: 9, minute: 0), 'end': const TimeOfDay(hour: 9, minute: 50), 'subject': 'Mathematics', 'class': '10-B', 'room': '202'},
-      {'start': const TimeOfDay(hour: 10, minute: 0), 'end': const TimeOfDay(hour: 10, minute: 50), 'subject': 'Science', 'class': '8-A', 'room': '101'},
-    ],
-    'Fri': [
-      {'start': const TimeOfDay(hour: 9, minute: 0), 'end': const TimeOfDay(hour: 9, minute: 50), 'subject': 'Mathematics', 'class': '10-A', 'room': '201'},
-      {'start': const TimeOfDay(hour: 10, minute: 0), 'end': const TimeOfDay(hour: 10, minute: 50), 'subject': 'Club Activity', 'class': 'All', 'room': 'Ground'},
-    ],
-    'Sat': [
-      {'start': const TimeOfDay(hour: 9, minute: 0), 'end': const TimeOfDay(hour: 11, minute: 0), 'subject': 'Special Class', 'class': '10-A', 'room': '201'},
-    ],
+  final Map<String, String> _fullDayNames = {
+    'Mon': 'Monday', 'Tue': 'Tuesday', 'Wed': 'Wednesday', 'Thu': 'Thursday', 'Fri': 'Friday', 'Sat': 'Saturday'
   };
+
+  List<Map<String, dynamic>> _fullSchedule = [];
 
   @override
   void initState() {
@@ -54,7 +32,13 @@ class _TimetableScreenState extends State<TimetableScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final schedule = _weeklySchedule[_selectedDay] ?? [];
+    // Filter schedule for selected day
+    final dayName = _fullDayNames[_selectedDay];
+    final schedule = _fullSchedule.where((slot) => slot['day'] == dayName).toList();
+    
+    // Sort by period
+    schedule.sort((a, b) => (a['period'] as int).compareTo(b['period'] as int));
+
     final currentTime = TimeOfDay.now();
 
     return Scaffold(
@@ -111,8 +95,11 @@ class _TimetableScreenState extends State<TimetableScreen> {
             itemCount: schedule.length,
             itemBuilder: (context, index) {
               final slot = schedule[index];
-              final start = slot['start'] as TimeOfDay;
-              final end = slot['end'] as TimeOfDay;
+              // Calculate Time based on Period (Assuming 1 hour periods starting at 8 AM)
+              // Period 1: 08:00 - 09:00
+              int period = slot['period'];
+              final start = TimeOfDay(hour: 8 + period - 1, minute: 0);
+              final end = TimeOfDay(hour: 8 + period, minute: 0);
               
               // Only highlight if it's actually today
               bool isToday = DateFormat('E').format(DateTime.now()) == _selectedDay;
@@ -140,14 +127,14 @@ class _TimetableScreenState extends State<TimetableScreen> {
                     fontWeight: FontWeight.bold, 
                     color: isPast ? Colors.grey : Colors.black,
                   )),
-                  subtitle: Text(slot['class'] != '-' ? 'Class: ${slot['class']} • Room: ${slot['room']}' : 'Free Period'),
+                  subtitle: Text('Class: ${slot['class']} • Room: ${slot['room']}'),
                   trailing: isNow 
                     ? Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(color: Colors.blue, borderRadius: BorderRadius.circular(12)),
                         child: const Text('NOW', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
                       ) 
-                    : (slot['class'] != '-' ? const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey) : null),
+                    : const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
                 ),
               );
             },
