@@ -1,3 +1,5 @@
+import 'package:admin_app/models/teacher.dart';
+
 class TeacherService {
   static final TeacherService _instance = TeacherService._internal();
 
@@ -7,50 +9,94 @@ class TeacherService {
 
   TeacherService._internal();
 
-  // Mock Data: Teacher Attendance
-  // Key: TeacherID, Value: List of Attendance Records
-  final Map<String, List<Map<String, String>>> _attendanceRecords = {
-    'T001': [
-      {'date': '2025-02-01', 'status': 'Present'},
-      {'date': '2025-02-02', 'status': 'Present'},
-      {'date': '2025-02-03', 'status': 'Present'},
-      {'date': '2025-02-04', 'status': 'Absent (Sick Leave)'}, // Pre-filled
-      {'date': '2025-02-05', 'status': 'Present'},
-    ],
-    'T002': [
-      {'date': '2025-02-05', 'status': 'Present'},
-    ],
-  };
+  // Mock Data
+  final List<Teacher> _teachers = [
+    Teacher(
+      id: 'T001',
+      name: 'Amit Verma',
+      subject: 'Mathematics',
+      isPresent: true,
+      email: 'amit.verma@school.edu',
+      phone: '9876543210',
+      qualification: 'M.Sc. Mathematics',
+      experience: '10 Years',
+      photoUrl: 'assets/teacher_man.png',
+    ),
+    Teacher(
+      id: 'T002',
+      name: 'Priya Singh',
+      subject: 'Physics',
+      isPresent: false,
+      email: 'priya.singh@school.edu',
+      phone: '9876543211',
+      qualification: 'M.Sc. Physics',
+      experience: '8 Years',
+      photoUrl: 'assets/teacher_woman.png',
+    ),
+    Teacher(
+      id: 'T003',
+      name: 'Neha Gupta',
+      subject: 'Chemistry',
+      isPresent: true,
+      email: 'neha.gupta@school.edu',
+      phone: '9876543212',
+      qualification: 'Ph.D. Chemistry',
+      experience: '12 Years',
+      photoUrl: 'assets/teacher_woman.png',
+    ),
+    Teacher(
+      id: 'T004',
+      name: 'Rahul Roy',
+      subject: 'English',
+      isPresent: true,
+      email: 'rahul.roy@school.edu',
+      phone: '9876543213',
+      qualification: 'M.A. English',
+      experience: '5 Years',
+      photoUrl: 'assets/teacher_man.png',
+    ),
+    Teacher(
+      id: 'T005',
+      name: 'Saanvi Mehta',
+      subject: 'Biology',
+      isPresent: false, // Leave
+      email: 'saanvi.mehta@school.edu',
+      phone: '9876543214',
+      qualification: 'M.Sc. Biology',
+      experience: '7 Years',
+      photoUrl: 'assets/teacher_woman.png',
+    ),
+  ];
 
+  List<Teacher> getAllTeachers() {
+    return _teachers;
+  }
+
+  void addTeacher(Teacher teacher) {
+    _teachers.add(teacher);
+  }
+
+  // Mock Attendance Methods
   void markAttendance(String teacherId, String date, String status) {
-    if (!_attendanceRecords.containsKey(teacherId)) {
-      _attendanceRecords[teacherId] = [];
+    final index = _teachers.indexWhere((t) => t.id == teacherId);
+    if (index != -1) {
+      _teachers[index].isPresent = (status == 'Present');
     }
-    // Remove existing record for the same date if any
-    _attendanceRecords[teacherId]!.removeWhere((record) => record['date'] == date);
-    
-    // Add new record
-    _attendanceRecords[teacherId]!.add({'date': date, 'status': status});
   }
 
-  List<Map<String, String>> getAttendance(String teacherId) {
-    return _attendanceRecords[teacherId] ?? [];
+  Future<List<Map<String, String>>> getAttendance(String teacherId) async {
+    // Return mock attendance history with String values to match UI
+    return List.generate(5, (index) {
+      final date = DateTime.now().subtract(Duration(days: index));
+      return {
+        'date': "${date.day} ${_getMonth(date.month)}", 
+        'status': index % 3 == 0 ? 'Absent' : 'Present',
+      };
+    });
   }
 
-  Map<String, int> getAttendanceStats(String teacherId) {
-    final records = getAttendance(teacherId);
-    int present = records.where((r) => r['status']!.contains('Present')).length;
-    int absent = records.where((r) => r['status']!.contains('Absent')).length;
-    int leaves = records.where((r) => r['status']!.contains('Leave')).length; // Using generic 'Leave' check
-    
-    // Note: 'Absent (Sick Leave)' counts as both Absent AND Leave for simplicity in this mock, 
-    // or we can refine logic. Let's say Leaves are subset of Absent if flagged.
-    // For now, let's just count unique statuses.
-    
-    return {
-      'present': present,
-      'absent': absent, // Total absences
-      'leaves': 1, // Mock static for now or derive from status text
-    };
+  String _getMonth(int month) {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return months[month - 1];
   }
 }
