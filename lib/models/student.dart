@@ -10,6 +10,10 @@ class Student {
   final String gender;
   final String photoUrl;
 
+  final String admissionNumber;
+  final String mobileNumber;
+  final String address;
+
   Student({
     required this.id,
     required this.name,
@@ -21,5 +25,8 @@ class Student {
     required this.aadhaar,
     required this.gender,
     required this.photoUrl,
+    this.admissionNumber = '',
+    this.mobileNumber = '',
+    this.address = '',
   });
 }

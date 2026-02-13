@@ -3,6 +3,8 @@ import 'package:admin_app/utils/constants.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:admin_app/models/student.dart';
 import 'package:admin_app/features/admin/screens/student_detail_screen.dart';
+import 'package:admin_app/core/services/student_service.dart';
+import 'package:admin_app/features/admin/screens/add_student_screen.dart';
 
 class StudentListScreen extends StatefulWidget {
   const StudentListScreen({super.key});
@@ -12,53 +14,21 @@ class StudentListScreen extends StatefulWidget {
 }
 
 class _StudentListScreenState extends State<StudentListScreen> {
-  final List<Student> _allStudents = [
-    Student(
-      id: '1',
-      name: 'Aarav Kumar',
-      rollNo: '101',
-      className: '10',
-      section: 'A',
-      fatherName: 'Rajesh Kumar',
-      motherName: 'Sunita Devi',
-      aadhaar: '1234-5678-9012',
-      gender: 'Male',
-      photoUrl: 'assets/student_boy.png',
-    ),
-     Student(
-      id: '2',
-      name: 'Ishita Sharma',
-      rollNo: '102',
-      className: '10',
-      section: 'A',
-      fatherName: 'Deepak Sharma',
-      motherName: 'Meena Sharma',
-      aadhaar: '9876-5432-1098',
-      gender: 'Female',
-      photoUrl: 'assets/student_girl.png',
-    ),
-    Student(
-      id: '3',
-      name: 'Rohan Gupta',
-      rollNo: '103',
-      className: '12',
-      section: 'B',
-      fatherName: 'Suresh Gupta',
-      motherName: 'Anita Gupta',
-      aadhaar: '4567-8901-2345',
-      gender: 'Male',
-      photoUrl: 'assets/student_boy.png',
-    ),
-    // Add more mock data as needed
-  ];
-
+  List<Student> _allStudents = [];
   List<Student> _filteredStudents = [];
   final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _filteredStudents = _allStudents;
+    _loadStudents();
+  }
+
+  void _loadStudents() {
+    setState(() {
+      _allStudents = StudentService().getAllStudents();
+      _filteredStudents = _allStudents;
+    });
   }
 
   void _filterStudents(String query) {
@@ -143,13 +113,21 @@ class _StudentListScreenState extends State<StudentListScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Add new student (Mock action)
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Add Student Feature coming soon')));
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () async {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AddStudentScreen()),
+          );
+          
+          if (result == true) {
+            _loadStudents(); 
+          }
         },
-        backgroundColor: AppColors.secondary,
-        child: const Icon(Icons.add),
+        backgroundColor: AppColors.primary,
+        icon: const Icon(Icons.person_add, color: Colors.white),
+        label: const Text('Add Student', style: TextStyle(color: Colors.white)),
       ),
     );
   }

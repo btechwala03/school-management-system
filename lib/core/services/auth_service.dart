@@ -20,7 +20,15 @@ class AuthService {
         role: UserRole.teacher,
         photoUrl: 'assets/teacher_avatar.png',
       );
+    } else if (id.toUpperCase().startsWith('P') && password == 'parent123') {
+      return User(
+        id: id,
+        name: 'Parent of Student ${id.substring(1)}',
+        role: UserRole.parent,
+        photoUrl: 'assets/parent_avatar.png',
+      );
     }
+
 
     return null; // Login failed
   }

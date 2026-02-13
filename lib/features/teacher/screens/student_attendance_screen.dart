@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:admin_app/utils/constants.dart';
 import 'package:admin_app/models/student.dart';
 import 'package:intl/intl.dart';
+import 'package:admin_app/core/services/student_service.dart';
 
 class StudentAttendanceScreen extends StatefulWidget {
   const StudentAttendanceScreen({super.key});
@@ -11,32 +12,28 @@ class StudentAttendanceScreen extends StatefulWidget {
 }
 
 class _StudentAttendanceScreenState extends State<StudentAttendanceScreen> {
-  // Mock Data reuse ( Ideally should move mock data to a service)
-  final List<Student> _students = [
-    Student(
-      id: '1', name: 'Aarav Kumar', rollNo: '101', className: '10', section: 'A',
-      fatherName: 'Rajesh', motherName: 'Sunita', aadhaar: '1234', gender: 'Male', photoUrl: 'assets/student_boy.png'
-    ),
-     Student(
-      id: '2', name: 'Ishita Sharma', rollNo: '102', className: '10', section: 'A',
-      fatherName: 'Deepak', motherName: 'Meena', aadhaar: '9876', gender: 'Female', photoUrl: 'assets/student_girl.png'
-    ),
-    Student(
-      id: '3', name: 'Rohan Gupta', rollNo: '103', className: '10', section: 'A',
-      fatherName: 'Suresh', motherName: 'Anita', aadhaar: '4567', gender: 'Male', photoUrl: 'assets/student_boy.png'
-    ),
-  ];
-
+  // Use StudentService to fetch students dynamically
+  List<Student> _students = [];
+  
   // Map to track attendance status: true = Present, false = Absent
   final Map<String, bool> _attendance = {};
 
   @override
   void initState() {
     super.initState();
-    // Default all to Present
-    for (var student in _students) {
-      _attendance[student.id] = true;
-    }
+    _loadStudents();
+  }
+
+  void _loadStudents() {
+    // Mock: Teacher is Class Teacher of 10-A
+    final allStudents = StudentService().getStudentsByClass('10', 'A');
+    setState(() {
+      _students = allStudents;
+      for (var student in _students) {
+        // Default all to Present
+        _attendance[student.id] = true;
+      }
+    });
   }
 
   @override

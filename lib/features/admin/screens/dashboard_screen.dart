@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:admin_app/utils/constants.dart';
+import 'package:admin_app/core/widgets/fade_in_list_item.dart';
 import 'package:admin_app/features/admin/screens/student_list_screen.dart';
 import 'package:admin_app/features/admin/screens/teacher_attendance_screen.dart';
 import 'package:admin_app/features/admin/screens/teacher_list_screen.dart';
 import 'package:admin_app/features/admin/screens/audit_log_screen.dart';
 import 'package:admin_app/features/admin/screens/send_notices_screen.dart';
 import 'package:admin_app/features/admin/screens/reports_dashboard_screen.dart';
+import 'package:admin_app/screens/login_screen.dart'; // Import LoginScreen
 import 'package:google_fonts/google_fonts.dart';
 
 class DashboardScreen extends StatelessWidget {
@@ -61,7 +63,9 @@ class DashboardScreen extends StatelessWidget {
               leading: const Icon(Icons.logout),
               title: const Text('Logout'),
               onTap: () {
-                 Navigator.of(context).pushReplacementNamed('/');
+                 Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                );
               },
             ),
           ],
@@ -76,40 +80,46 @@ class DashboardScreen extends StatelessWidget {
             const SizedBox(height: 16),
             Row(
               children: [
-                Expanded(child: _buildStatCard('Total Students', '1,250', Icons.people, Colors.blue)),
+                Expanded(child: FadeInListItem(index: 0, child: _buildStatCard('Total Students', '1,250', Icons.people, Colors.blue))),
                 const SizedBox(width: 16),
-                Expanded(child: _buildStatCard('Teachers Present', '48/50', Icons.school, Colors.green)),
+                Expanded(child: FadeInListItem(index: 1, child: _buildStatCard('Teachers Present', '48/50', Icons.school, Colors.green))),
               ],
             ),
             const SizedBox(height: 16),
             // New Headcount Card
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Student Demographics', style: AppTextStyles.heading2.copyWith(fontSize: 16)),
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      _buildGenderStat('Boys', '650', Icons.male, Colors.blue),
-                      Container(height: 40, width: 1, color: Colors.grey.shade300),
-                      _buildGenderStat('Girls', '600', Icons.female, Colors.pink),
-                    ],
-                  ),
-                ],
+            FadeInListItem(
+              index: 2,
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Student Demographics', style: AppTextStyles.heading2.copyWith(fontSize: 16)),
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        _buildGenderStat('Boys', '650', Icons.male, Colors.blue),
+                        Container(height: 40, width: 1, color: Colors.grey.shade300),
+                        _buildGenderStat('Girls', '600', Icons.female, Colors.pink),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: 24),
-            Text('Quick Actions', style: AppTextStyles.heading2),
+            FadeInListItem(
+              index: 3,
+              child: Text('Quick Actions', style: AppTextStyles.heading2),
+            ),
             const SizedBox(height: 16),
             GridView.count(
               shrinkWrap: true,
@@ -119,27 +129,39 @@ class DashboardScreen extends StatelessWidget {
               mainAxisSpacing: 16,
               childAspectRatio: 1.5,
               children: [
-                _buildActionCard(context, 'Manage Fees', Icons.payment, AppColors.primary, () {
-                   Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => const StudentListScreen()),
-                  );
-                }),
-                _buildActionCard(context, 'Mark Attendance', Icons.edit_calendar, AppColors.secondary, () {
-                  // Reverting to "Mark Attendance" as per user request
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => const TeacherAttendanceScreen()),
-                  );
-                }),
-                _buildActionCard(context, 'Send Notices', Icons.message, Colors.orange, () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => const SendNoticesScreen()),
-                  );
-                }),
-                _buildActionCard(context, 'View Reports', Icons.bar_chart, Colors.purple, () {
-                   Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => const ReportsDashboardScreen()),
-                  );
-                }),
+                FadeInListItem(
+                  index: 4,
+                  child: _buildActionCard(context, 'Manage Fees', Icons.payment, AppColors.primary, () {
+                     Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => const StudentListScreen()),
+                    );
+                  }),
+                ),
+                FadeInListItem(
+                  index: 5,
+                  child: _buildActionCard(context, 'Mark Attendance', Icons.edit_calendar, AppColors.secondary, () {
+                    // Reverting to "Mark Attendance" as per user request
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => const TeacherAttendanceScreen()),
+                    );
+                  }),
+                ),
+                FadeInListItem(
+                  index: 6,
+                  child: _buildActionCard(context, 'Send Notices', Icons.message, Colors.orange, () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => const SendNoticesScreen()),
+                    );
+                  }),
+                ),
+                FadeInListItem(
+                  index: 7,
+                  child: _buildActionCard(context, 'View Reports', Icons.bar_chart, Colors.purple, () {
+                     Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => const ReportsDashboardScreen()),
+                    );
+                  }),
+                ),
               ],
             ),
           ],
